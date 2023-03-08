@@ -85,7 +85,17 @@ public class Startup : FunctionsStartup
 
             var dnsProviders = new List<IDnsProvider>();
 
-            dnsProviders.TryAdd(options.AzureDns, o => new AzureDnsProvider(o, environment, credential));
+            dnsProviders.TryAdd(options.AzureDns, o => {
+                if(!String.IsNullOrWhiteSpace(o.ClientId) && !String.IsNullOrWhiteSpace(o.ClientSecret) && !String.IsNullOrWhiteSpace(o.TenantId)) {
+                    environment = AzureEnvironment.Get(o.AzureEnvironmentName ?? options.Environment);
+                    credential = new ClientSecretCredential(o.TenantId, o.ClientId, o.ClientSecret, new ClientSecretCredentialOptions
+                    {
+                        AuthorityHost = environment.AuthorityHost
+                    });
+                }
+
+                return new AzureDnsProvider(o, environment, credential);
+            });
             dnsProviders.TryAdd(options.AzurePrivateDns, o => new AzurePrivateDnsProvider(o, environment, credential));
             dnsProviders.TryAdd(options.Cloudflare, o => new CloudflareProvider(o));
             dnsProviders.TryAdd(options.CustomDns, o => new CustomDnsProvider(o));
