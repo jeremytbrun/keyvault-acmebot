@@ -87,7 +87,7 @@ public class Startup : FunctionsStartup
 
             dnsProviders.TryAdd(options.AzureDns, o => {
                 if(!String.IsNullOrWhiteSpace(o.ClientId) && !String.IsNullOrWhiteSpace(o.ClientSecret) && !String.IsNullOrWhiteSpace(o.TenantId)) {
-                    environment = AzureEnvironment.Get(o.AzureEnvironmentName ?? options.Environment);
+                    environment = AzureEnvironment.Get(o.Environment ?? options.Environment);
                     credential = new ClientSecretCredential(o.TenantId, o.ClientId, o.ClientSecret, new ClientSecretCredentialOptions
                     {
                         AuthorityHost = environment.AuthorityHost
